@@ -4,13 +4,23 @@
   "description": "Magic: The Gathering MCP server with card search, deck analysis, and format intelligence",
   "type": "module",
   "license": "MIT",
-  "main": "dist/index.js",
+  "main": "dist/server.js",
+  "bin": {
+    "mtg-oracle": "dist/server.js"
+  },
+  "files": [
+    "dist/**/*.js",
+    "dist/**/*.d.ts",
+    "dist/**/*.js.map",
+    "dist/**/*.d.ts.map",
+    "dist/data/schema.sql"
+  ],
   "scripts": {
-    "build": "tsc",
+    "build": "tsc && cp src/data/schema.sql dist/data/schema.sql",
     "test": "vitest run",
     "test:watch": "vitest",
-    "start": "node dist/index.js",
-    "fetch-data": "node dist/fetch-data.js"
+    "start": "node dist/server.js",
+    "prepublishOnly": "npm run build"
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.12.1",
@@ -23,5 +33,18 @@
     "@types/node": "^22.13.10",
     "typescript": "^5.8.2",
     "vitest": "^3.1.0"
-  }
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "keywords": [
+    "mcp",
+    "magic-the-gathering",
+    "mtg",
+    "commander",
+    "edh",
+    "scryfall",
+    "claude",
+    "ai"
+  ]
 }

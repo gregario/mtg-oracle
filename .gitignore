@@ -2,6 +2,7 @@ node_modules/
 dist/
 .env
 *.sqlite
-data/
+# Runtime data directory (downloaded card data)
+/data/
 coverage/
 *.tsbuildinfo

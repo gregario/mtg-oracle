@@ -1,0 +1,24 @@
+# Source
+src/
+
+# Tests
+tests/
+vitest.config.ts
+coverage/
+
+# Dev configs
+tsconfig.json
+.gitignore
+.claude/
+
+# OpenSpec
+openspec/
+
+# Runtime data (downloaded at runtime, not bundled)
+data/
+*.sqlite
+
+# Misc
+.env
+*.tsbuildinfo
+node_modules/

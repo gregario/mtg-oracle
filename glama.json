@@ -3,9 +3,24 @@
   "maintainers": ["gregario"],
   "relatedServers": [
     {
+      "name": "lego-oracle",
+      "url": "https://glama.ai/mcp/servers/gregario/lego-oracle",
+      "description": "LEGO sets, parts, and minifigs MCP server"
+    },
+    {
       "name": "warhammer-oracle",
       "url": "https://glama.ai/mcp/servers/gregario/warhammer-oracle",
-      "description": "Warhammer 40K MCP server — same author, same pattern"
+      "description": "Warhammer 40K rules MCP server"
+    },
+    {
+      "name": "godot-forge",
+      "url": "https://glama.ai/mcp/servers/gregario/godot-forge",
+      "description": "MCP server for Godot 4 game development"
+    },
+    {
+      "name": "brewers-almanack",
+      "url": "https://glama.ai/mcp/servers/gregario/brewers-almanack",
+      "description": "Brewing knowledge MCP server"
     }
   ]
 }

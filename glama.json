@@ -1,4 +1,11 @@
 {
   "$schema": "https://glama.ai/mcp/schemas/server.json",
-  "maintainers": ["gregario"]
+  "maintainers": ["gregario"],
+  "relatedServers": [
+    {
+      "name": "warhammer-oracle",
+      "url": "https://glama.ai/mcp/servers/gregario/warhammer-oracle",
+      "description": "Warhammer 40K MCP server — same author, same pattern"
+    }
+  ]
 }

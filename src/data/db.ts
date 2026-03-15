@@ -261,6 +261,39 @@ export function searchCards(db: Database.Database, query: string, limit: number 
 }
 
 /**
+ * Insert a rule entry.
+ */
+export function insertRule(db: Database.Database, rule: RuleRow): void {
+  const stmt = db.prepare(`
+    INSERT OR REPLACE INTO rules (section, title, text, parent_section)
+    VALUES (@section, @title, @text, @parent_section)
+  `);
+  stmt.run(rule);
+}
+
+/**
+ * Insert a glossary entry.
+ */
+export function insertGlossary(db: Database.Database, entry: GlossaryRow): void {
+  const stmt = db.prepare(`
+    INSERT OR REPLACE INTO glossary (term, definition)
+    VALUES (@term, @definition)
+  `);
+  stmt.run(entry);
+}
+
+/**
+ * Insert a keyword entry.
+ */
+export function insertKeyword(db: Database.Database, keyword: KeywordRow): void {
+  const stmt = db.prepare(`
+    INSERT OR REPLACE INTO keywords (name, section, type, rules_text)
+    VALUES (@name, @section, @type, @rules_text)
+  `);
+  stmt.run(keyword);
+}
+
+/**
  * Get all table names in the database (excluding internal SQLite tables).
  */
 export function getTableNames(db: Database.Database): string[] {

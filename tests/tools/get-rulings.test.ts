@@ -16,6 +16,7 @@ function makeBolt(): CardRow {
     color_identity: '["R"]', keywords: '[]', rarity: 'common',
     set_code: 'lea', set_name: 'Alpha', released_at: '1993-08-05',
     image_uri: null, scryfall_uri: null, edhrec_rank: 5, artist: 'Christopher Rush',
+    price_usd: null, price_usd_foil: null, price_eur: null, price_eur_foil: null, price_tix: null,
   };
 }
 
@@ -27,6 +28,7 @@ function makeGoyf(): CardRow {
     color_identity: '["G"]', keywords: '[]', rarity: 'mythic',
     set_code: 'fut', set_name: 'Future Sight', released_at: '2007-05-04',
     image_uri: null, scryfall_uri: null, edhrec_rank: null, artist: 'Ryan Barger',
+    price_usd: null, price_usd_foil: null, price_eur: null, price_eur_foil: null, price_tix: null,
   };
 }
 

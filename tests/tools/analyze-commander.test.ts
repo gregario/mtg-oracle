@@ -14,6 +14,7 @@ function makeKrenko(): CardRow {
     color_identity: '["R"]', keywords: '[]', rarity: 'rare',
     set_code: 'm13', set_name: 'Magic 2013', released_at: '2012-07-13',
     image_uri: null, scryfall_uri: null, edhrec_rank: 42, artist: 'Karl Kopinski',
+    price_usd: null, price_usd_foil: null, price_eur: null, price_eur_foil: null, price_tix: null,
   };
 }
 
@@ -26,6 +27,7 @@ function makeBrago(): CardRow {
     color_identity: '["W","U"]', keywords: '["Flying"]', rarity: 'rare',
     set_code: 'cns', set_name: 'Conspiracy', released_at: '2014-06-06',
     image_uri: null, scryfall_uri: null, edhrec_rank: 150, artist: 'Karla Ortiz',
+    price_usd: null, price_usd_foil: null, price_eur: null, price_eur_foil: null, price_tix: null,
   };
 }
 
@@ -38,6 +40,7 @@ function makePartnerCommander(): CardRow {
     color_identity: '["G","U"]', keywords: '["Partner"]', rarity: 'rare',
     set_code: 'c16', set_name: 'Commander 2016', released_at: '2016-11-11',
     image_uri: null, scryfall_uri: null, edhrec_rank: 10, artist: 'Josu Hernaiz',
+    price_usd: null, price_usd_foil: null, price_eur: null, price_eur_foil: null, price_tix: null,
   };
 }
 
@@ -49,6 +52,7 @@ function makeLightningBolt(): CardRow {
     color_identity: '["R"]', keywords: '[]', rarity: 'common',
     set_code: 'lea', set_name: 'Alpha', released_at: '1993-08-05',
     image_uri: null, scryfall_uri: null, edhrec_rank: 5, artist: 'Christopher Rush',
+    price_usd: null, price_usd_foil: null, price_eur: null, price_eur_foil: null, price_tix: null,
   };
 }
 
@@ -61,6 +65,7 @@ function makeMeren(): CardRow {
     color_identity: '["B","G"]', keywords: '[]', rarity: 'mythic',
     set_code: 'c15', set_name: 'Commander 2015', released_at: '2015-11-13',
     image_uri: null, scryfall_uri: null, edhrec_rank: 25, artist: 'Mark Winters',
+    price_usd: null, price_usd_foil: null, price_eur: null, price_eur_foil: null, price_tix: null,
   };
 }
 

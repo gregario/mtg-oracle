@@ -19,7 +19,12 @@ CREATE TABLE IF NOT EXISTS cards (
   image_uri TEXT,
   scryfall_uri TEXT,
   edhrec_rank INTEGER,
-  artist TEXT
+  artist TEXT,
+  price_usd REAL,
+  price_usd_foil REAL,
+  price_eur REAL,
+  price_eur_foil REAL,
+  price_tix REAL
 );
 
 CREATE TABLE IF NOT EXISTS card_faces (

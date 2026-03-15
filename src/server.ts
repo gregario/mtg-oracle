@@ -27,6 +27,8 @@ import { AnalyzeCommanderInput, handler as analyzeCommanderHandler } from './too
 import { FindCombosInput, handler as findCombosHandler } from './tools/find-combos.js';
 import { FindSynergiesInput, handler as findSynergiesHandler } from './tools/find-synergies.js';
 import { GetFormatStaplesInput, handler as getFormatStaplesHandler } from './tools/get-format-staples.js';
+import { GetPricesInput, handler as getPricesHandler } from './tools/get-prices.js';
+import { AnalyzeDeckInput, handler as analyzeDeckHandler } from './tools/analyze-deck.js';
 
 // Response formatters
 import {
@@ -42,6 +44,8 @@ import {
   formatFindCombos,
   formatFindSynergies,
   formatGetFormatStaples,
+  formatGetPrices,
+  formatAnalyzeDeck,
 } from './format.js';
 
 // --- Version ---
@@ -255,12 +259,44 @@ async function main(): Promise<void> {
     },
   );
 
+  // --- Register Price Tools ---
+
+  server.tool(
+    'get_prices',
+    'Look up current market prices for one or more Magic cards. Returns USD, USD Foil, EUR, and MTGO tix prices from Scryfall. Use this when a user asks about card prices, deck costs, or wants to compare card values.',
+    GetPricesInput.shape,
+    async (params) => {
+      try {
+        const result = getPricesHandler(db, params);
+        return { content: [{ type: 'text' as const, text: formatGetPrices(result) }] };
+      } catch (err) {
+        return { content: [{ type: 'text' as const, text: `Error getting prices: ${err instanceof Error ? err.message : String(err)}` }], isError: true };
+      }
+    },
+  );
+
+  // --- Register Deck Tools ---
+
+  server.tool(
+    'analyze_deck',
+    'Analyze a Magic: The Gathering deck list. Paste a deck list (plain text format like \'4 Lightning Bolt\' per line, or MTGO .dek XML) and get mana curve, color distribution, type breakdown, mana base analysis, and format legality check. Use this when a user shares a deck list and wants feedback.',
+    AnalyzeDeckInput.shape,
+    async (params) => {
+      try {
+        const result = analyzeDeckHandler(db, params);
+        return { content: [{ type: 'text' as const, text: formatAnalyzeDeck(result) }] };
+      } catch (err) {
+        return { content: [{ type: 'text' as const, text: `Error analyzing deck: ${err instanceof Error ? err.message : String(err)}` }], isError: true };
+      }
+    },
+  );
+
   // --- Connect transport and start ---
 
   const transport = new StdioServerTransport();
   console.error(`[mtg-oracle] v${version} starting on stdio...`);
   await server.connect(transport);
-  console.error(`[mtg-oracle] Server running — 12 tools registered`);
+  console.error(`[mtg-oracle] Server running — 14 tools registered`);
 }
 
 main().catch((err) => {

@@ -16,6 +16,7 @@ function makeBirdsOfParadise(): CardRow {
     color_identity: '["G"]', keywords: '["Flying"]', rarity: 'rare',
     set_code: 'lea', set_name: 'Alpha', released_at: '1993-08-05',
     image_uri: null, scryfall_uri: null, edhrec_rank: 50, artist: 'Mark Poole',
+    price_usd: null, price_usd_foil: null, price_eur: null, price_eur_foil: null, price_tix: null,
   };
 }
 
@@ -27,6 +28,7 @@ function makeSerraAngel(): CardRow {
     color_identity: '["W"]', keywords: '["Flying","Vigilance"]', rarity: 'uncommon',
     set_code: 'lea', set_name: 'Alpha', released_at: '1993-08-05',
     image_uri: null, scryfall_uri: null, edhrec_rank: 200, artist: 'Douglas Shuler',
+    price_usd: null, price_usd_foil: null, price_eur: null, price_eur_foil: null, price_tix: null,
   };
 }
 
@@ -38,6 +40,7 @@ function makeLlanowarElves(): CardRow {
     color_identity: '["G"]', keywords: '[]', rarity: 'common',
     set_code: 'lea', set_name: 'Alpha', released_at: '1993-08-05',
     image_uri: null, scryfall_uri: null, edhrec_rank: 10, artist: 'Anson Maddocks',
+    price_usd: null, price_usd_foil: null, price_eur: null, price_eur_foil: null, price_tix: null,
   };
 }
 
@@ -49,6 +52,7 @@ function makeLightningBolt(): CardRow {
     color_identity: '["R"]', keywords: '[]', rarity: 'common',
     set_code: 'lea', set_name: 'Alpha', released_at: '1993-08-05',
     image_uri: null, scryfall_uri: null, edhrec_rank: 5, artist: 'Christopher Rush',
+    price_usd: null, price_usd_foil: null, price_eur: null, price_eur_foil: null, price_tix: null,
   };
 }
 

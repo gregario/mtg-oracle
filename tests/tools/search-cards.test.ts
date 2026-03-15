@@ -13,6 +13,7 @@ function makeBolt(): CardRow {
     color_identity: '["R"]', keywords: '[]', rarity: 'common',
     set_code: 'lea', set_name: 'Alpha', released_at: '1993-08-05',
     image_uri: null, scryfall_uri: null, edhrec_rank: 5, artist: 'Christopher Rush',
+    price_usd: null, price_usd_foil: null, price_eur: null, price_eur_foil: null, price_tix: null,
   };
 }
 
@@ -24,6 +25,7 @@ function makeGoyf(): CardRow {
     color_identity: '["G"]', keywords: '[]', rarity: 'mythic',
     set_code: 'fut', set_name: 'Future Sight', released_at: '2007-05-04',
     image_uri: null, scryfall_uri: null, edhrec_rank: null, artist: 'Ryan Barger',
+    price_usd: null, price_usd_foil: null, price_eur: null, price_eur_foil: null, price_tix: null,
   };
 }
 
@@ -35,6 +37,7 @@ function makeSwords(): CardRow {
     color_identity: '["W"]', keywords: '[]', rarity: 'uncommon',
     set_code: 'lea', set_name: 'Alpha', released_at: '1993-08-05',
     image_uri: null, scryfall_uri: null, edhrec_rank: 3, artist: 'Jeff A. Menges',
+    price_usd: null, price_usd_foil: null, price_eur: null, price_eur_foil: null, price_tix: null,
   };
 }
 
@@ -46,6 +49,7 @@ function makeOmnath(): CardRow {
     color_identity: '["R","G","W","U"]', keywords: '["Landfall"]', rarity: 'mythic',
     set_code: 'znr', set_name: 'Zendikar Rising', released_at: '2020-09-25',
     image_uri: null, scryfall_uri: null, edhrec_rank: 100, artist: 'Chris Rahn',
+    price_usd: null, price_usd_foil: null, price_eur: null, price_eur_foil: null, price_tix: null,
   };
 }
 

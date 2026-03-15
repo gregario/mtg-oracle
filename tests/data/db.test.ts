@@ -43,6 +43,11 @@ function makeLightningBolt(): CardRow {
     scryfall_uri: 'https://scryfall.com/card/lea/bolt',
     edhrec_rank: 5,
     artist: 'Christopher Rush',
+    price_usd: null,
+    price_usd_foil: null,
+    price_eur: null,
+    price_eur_foil: null,
+    price_tix: null,
   };
 }
 
@@ -68,6 +73,11 @@ function makeTarmogoyfCard(): CardRow {
     scryfall_uri: null,
     edhrec_rank: null,
     artist: 'Ryan Barger',
+    price_usd: null,
+    price_usd_foil: null,
+    price_eur: null,
+    price_eur_foil: null,
+    price_tix: null,
   };
 }
 
@@ -93,6 +103,11 @@ function makeDelverOfSecrets(): CardRow {
     scryfall_uri: null,
     edhrec_rank: null,
     artist: 'Matt Stewart',
+    price_usd: null,
+    price_usd_foil: null,
+    price_eur: null,
+    price_eur_foil: null,
+    price_tix: null,
   };
 }
 

@@ -27,6 +27,11 @@ export interface CardRow {
   scryfall_uri: string | null;
   edhrec_rank: number | null;
   artist: string | null;
+  price_usd: number | null;
+  price_usd_foil: number | null;
+  price_eur: number | null;
+  price_eur_foil: number | null;
+  price_tix: number | null;
 }
 
 export interface CardFaceRow {
@@ -174,11 +179,13 @@ export function insertCard(db: Database.Database, card: CardRow): void {
     INSERT OR REPLACE INTO cards
     (id, name, mana_cost, cmc, type_line, oracle_text, power, toughness,
      loyalty, colors, color_identity, keywords, rarity, set_code, set_name,
-     released_at, image_uri, scryfall_uri, edhrec_rank, artist)
+     released_at, image_uri, scryfall_uri, edhrec_rank, artist,
+     price_usd, price_usd_foil, price_eur, price_eur_foil, price_tix)
     VALUES
     (@id, @name, @mana_cost, @cmc, @type_line, @oracle_text, @power, @toughness,
      @loyalty, @colors, @color_identity, @keywords, @rarity, @set_code, @set_name,
-     @released_at, @image_uri, @scryfall_uri, @edhrec_rank, @artist)
+     @released_at, @image_uri, @scryfall_uri, @edhrec_rank, @artist,
+     @price_usd, @price_usd_foil, @price_eur, @price_eur_foil, @price_tix)
   `);
   stmt.run(card);
 }

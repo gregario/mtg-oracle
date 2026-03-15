@@ -15,6 +15,8 @@ import type { AnalyzeCommanderResult } from './tools/analyze-commander.js';
 import type { FindCombosResult } from './tools/find-combos.js';
 import type { FindSynergiesResult } from './tools/find-synergies.js';
 import type { FormatStaplesResult } from './tools/get-format-staples.js';
+import type { GetPricesResult } from './tools/get-prices.js';
+import type { AnalyzeDeckResult } from './tools/analyze-deck.js';
 
 // --- Card tools ---
 
@@ -95,6 +97,18 @@ function formatCardDetail(card: CardDetail): string {
   // Keywords
   if (card.keywords.length > 0) {
     lines.push(`Keywords: ${card.keywords.join(', ')}`);
+  }
+
+  // Prices
+  const priceParts: string[] = [];
+  if (card.price_usd) priceParts.push(`USD: $${card.price_usd.toFixed(2)}`);
+  if (card.price_usd_foil) priceParts.push(`USD Foil: $${card.price_usd_foil.toFixed(2)}`);
+  if (card.price_eur) priceParts.push(`EUR: €${card.price_eur.toFixed(2)}`);
+  if (card.price_eur_foil) priceParts.push(`EUR Foil: €${card.price_eur_foil.toFixed(2)}`);
+  if (card.price_tix) priceParts.push(`MTGO: ${card.price_tix.toFixed(1)} tix`);
+  if (priceParts.length > 0) {
+    lines.push('\n## Prices');
+    lines.push(priceParts.join(' | '));
   }
 
   // Faces (double-faced cards)
@@ -406,6 +420,121 @@ export function formatGetFormatStaples(result: FormatStaplesResult): string {
       lines.push(`\n### ${arch.name}`);
       if (arch.example_cards.length > 0) {
         lines.push(arch.example_cards.map(c => `- ${c}`).join('\n'));
+      }
+    }
+  }
+
+  return lines.join('\n');
+}
+
+// --- Price tools ---
+
+export function formatGetPrices(result: GetPricesResult): string {
+  const lines: string[] = ['# Card Prices\n'];
+
+  for (const entry of result.cards) {
+    if (!entry.found) {
+      lines.push(`**${entry.name}**: Not found`);
+      continue;
+    }
+
+    const priceParts: string[] = [];
+    if (entry.price_usd !== null) priceParts.push(`USD: $${entry.price_usd.toFixed(2)}`);
+    if (entry.price_usd_foil !== null) priceParts.push(`USD Foil: $${entry.price_usd_foil.toFixed(2)}`);
+    if (entry.price_eur !== null) priceParts.push(`EUR: €${entry.price_eur.toFixed(2)}`);
+    if (entry.price_eur_foil !== null) priceParts.push(`EUR Foil: €${entry.price_eur_foil.toFixed(2)}`);
+    if (entry.price_tix !== null) priceParts.push(`MTGO: ${entry.price_tix.toFixed(1)} tix`);
+
+    if (priceParts.length === 0) {
+      lines.push(`**${entry.name}**: No price data available`);
+    } else {
+      lines.push(`**${entry.name}**: ${priceParts.join(' | ')}`);
+    }
+  }
+
+  return lines.join('\n');
+}
+
+// --- Deck tools ---
+
+export function formatAnalyzeDeck(result: AnalyzeDeckResult): string {
+  if (!result.success) {
+    return result.message;
+  }
+
+  const a = result.analysis;
+  const lines: string[] = [];
+
+  // Header
+  const sideboardPart = a.sideboard_count > 0 ? `, ${a.sideboard_count} sideboard` : '';
+  lines.push(`# Deck Analysis (${a.main_count} cards main${sideboardPart})`);
+
+  if (a.commander) {
+    lines.push(`Commander: ${a.commander}`);
+  }
+  if (a.format_hint) {
+    lines.push(`Detected format: ${a.format_hint}`);
+  }
+
+  // Mana Curve
+  lines.push('\n## Mana Curve');
+  const maxCurve = Math.max(...a.mana_curve.map(e => e.count), 1);
+  for (const entry of a.mana_curve) {
+    const barLength = Math.round((entry.count / maxCurve) * 20);
+    const bar = '\u2588'.repeat(barLength);
+    lines.push(`${entry.cmc.padStart(2)}: ${bar} ${entry.count}`);
+  }
+
+  // Color Distribution
+  lines.push('\n## Color Distribution');
+  const colorParts = a.color_distribution
+    .filter(c => c.count > 0)
+    .map(c => `${c.color}: ${c.count}`);
+  lines.push(colorParts.join(' | '));
+
+  // Type Breakdown
+  lines.push('\n## Type Breakdown');
+  const typeParts = a.type_breakdown.map(t => `${t.type}: ${t.count}`);
+  lines.push(typeParts.join(' | '));
+
+  // Mana Base
+  lines.push('\n## Mana Base');
+  const recPart = a.mana_base.recommended_lands !== null
+    ? ` — recommended ${a.mana_base.recommended_lands} for ${a.main_count}-card deck`
+    : '';
+  lines.push(`${a.mana_base.land_count} lands (${a.mana_base.land_percentage}%)${recPart}`);
+
+  const sourceEntries = Object.entries(a.mana_base.color_sources);
+  if (sourceEntries.length > 0) {
+    const sourceParts = sourceEntries.map(([c, n]) => `${c}=${n}`);
+    lines.push(`Color sources: ${sourceParts.join(', ')}`);
+  }
+
+  for (const warning of a.mana_base.warnings) {
+    lines.push(`\u26a0 ${warning}`);
+  }
+
+  // Format Legality
+  if (a.format_legality) {
+    lines.push(`\n## Format Legality (${capitalize(a.format_legality.format)})`);
+    if (a.format_legality.all_legal) {
+      const totalCards = a.main_count + a.sideboard_count;
+      lines.push(`\u2713 All ${totalCards} cards are legal in ${capitalize(a.format_legality.format)}`);
+    } else {
+      for (const card of a.format_legality.illegal_cards) {
+        lines.push(`\u2717 ${card.name}: ${card.status}`);
+      }
+    }
+  }
+
+  // Cards Not Found
+  if (a.cards_not_found.length > 0) {
+    lines.push('\n## Cards Not Found');
+    for (const card of a.cards_not_found) {
+      if (card.suggestion) {
+        lines.push(`- "${card.name}" \u2014 did you mean ${card.suggestion}?`);
+      } else {
+        lines.push(`- "${card.name}"`);
       }
     }
   }

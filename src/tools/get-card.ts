@@ -36,6 +36,11 @@ export interface CardDetail {
   faces: CardFaceDetail[];
   rulings: RulingDetail[];
   legalities: Record<string, string>;
+  price_usd: number | null;
+  price_usd_foil: number | null;
+  price_eur: number | null;
+  price_eur_foil: number | null;
+  price_tix: number | null;
 }
 
 export interface CardFaceDetail {
@@ -149,6 +154,11 @@ export function handler(db: Database.Database, params: GetCardParams): GetCardRe
       comment: r.comment,
     })),
     legalities,
+    price_usd: card.price_usd,
+    price_usd_foil: card.price_usd_foil,
+    price_eur: card.price_eur,
+    price_eur_foil: card.price_eur_foil,
+    price_tix: card.price_tix,
   };
 
   return { found: true, card: cardDetail };

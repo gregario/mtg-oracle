@@ -96,6 +96,7 @@ describe('formatGetCard', () => {
           { source: 'wotc', published_at: '2024-01-01', comment: 'Sol Ring produces colorless mana.' },
         ],
         legalities: { commander: 'legal', vintage: 'restricted', legacy: 'banned' },
+        price_usd: 1.23, price_usd_foil: 4.56, price_eur: 1.10, price_eur_foil: null, price_tix: 0.5,
       },
     });
     expect(text).toContain('# Sol Ring {1}');
@@ -111,6 +112,12 @@ describe('formatGetCard', () => {
     expect(text).toContain('## Rulings (1)');
     expect(text).toContain('2024-01-01 (wotc): Sol Ring produces colorless mana.');
     expect(text).toContain('[View on Scryfall]');
+    expect(text).toContain('## Prices');
+    expect(text).toContain('USD: $1.23');
+    expect(text).toContain('USD Foil: $4.56');
+    expect(text).toContain('EUR: €1.10');
+    expect(text).toContain('MTGO: 0.5 tix');
+    expect(text).not.toContain('EUR Foil');
   });
 
   it('formats creature with P/T', () => {
@@ -124,6 +131,7 @@ describe('formatGetCard', () => {
         rarity: 'common', set_code: 'a25', set_name: 'Masters 25',
         released_at: '2018-03-16', image_uri: null, scryfall_uri: null,
         edhrec_rank: null, artist: null, faces: [], rulings: [], legalities: {},
+        price_usd: null, price_usd_foil: null, price_eur: null, price_eur_foil: null, price_tix: null,
       },
     });
     expect(text).toContain('2/2');
@@ -141,6 +149,7 @@ describe('formatGetCard', () => {
         rarity: 'mythic', set_code: 'wwk', set_name: 'Worldwake',
         released_at: '2010-02-05', image_uri: null, scryfall_uri: null,
         edhrec_rank: 100, artist: null, faces: [], rulings: [], legalities: {},
+        price_usd: null, price_usd_foil: null, price_eur: null, price_eur_foil: null, price_tix: null,
       },
     });
     expect(text).toContain('Loyalty: 3');
@@ -162,6 +171,7 @@ describe('formatGetCard', () => {
           { face_index: 1, name: 'Insectile Aberration', mana_cost: null, type_line: 'Creature — Human Insect', oracle_text: 'Flying', power: '3', toughness: '2', colors: ['U'] },
         ],
         rulings: [], legalities: {},
+        price_usd: null, price_usd_foil: null, price_eur: null, price_eur_foil: null, price_tix: null,
       },
     });
     expect(text).toContain('## Faces');
@@ -482,6 +492,7 @@ describe('response formatting', () => {
         released_at: '2024-01-01', image_uri: null, scryfall_uri: null,
         edhrec_rank: null, artist: null, faces: [], rulings: [],
         legalities: { commander: 'legal' },
+        price_usd: null, price_usd_foil: null, price_eur: null, price_eur_foil: null, price_tix: null,
       },
     });
     // Uses markdown headers

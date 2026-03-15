@@ -16,6 +16,7 @@ function makeBolt(): CardRow {
     color_identity: '["R"]', keywords: '[]', rarity: 'common',
     set_code: 'lea', set_name: 'Alpha', released_at: '1993-08-05',
     image_uri: null, scryfall_uri: null, edhrec_rank: 5, artist: 'Christopher Rush',
+    price_usd: 1.23, price_usd_foil: 4.56, price_eur: 1.10, price_eur_foil: 3.50, price_tix: 0.5,
   };
 }
 
@@ -28,6 +29,7 @@ function makeDelver(): CardRow {
     color_identity: '["U"]', keywords: '["Transform"]', rarity: 'common',
     set_code: 'isd', set_name: 'Innistrad', released_at: '2011-09-30',
     image_uri: null, scryfall_uri: null, edhrec_rank: null, artist: 'Matt Stewart',
+    price_usd: null, price_usd_foil: null, price_eur: null, price_eur_foil: null, price_tix: null,
   };
 }
 

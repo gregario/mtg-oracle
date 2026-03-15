@@ -14,6 +14,7 @@ function makeKrenko(): CardRow {
     color_identity: '["R"]', keywords: '[]', rarity: 'rare',
     set_code: 'm13', set_name: 'Magic 2013', released_at: '2012-07-13',
     image_uri: null, scryfall_uri: null, edhrec_rank: 42, artist: 'Karl Kopinski',
+    price_usd: null, price_usd_foil: null, price_eur: null, price_eur_foil: null, price_tix: null,
   };
 }
 
@@ -26,6 +27,7 @@ function makeGoblinChieftain(): CardRow {
     color_identity: '["R"]', keywords: '["Haste"]', rarity: 'rare',
     set_code: 'm10', set_name: 'Magic 2010', released_at: '2009-07-17',
     image_uri: null, scryfall_uri: null, edhrec_rank: 100, artist: 'Sam Wood',
+    price_usd: null, price_usd_foil: null, price_eur: null, price_eur_foil: null, price_tix: null,
   };
 }
 
@@ -38,6 +40,7 @@ function makeSkirk(): CardRow {
     color_identity: '["R"]', keywords: '[]', rarity: 'common',
     set_code: 'dom', set_name: 'Dominaria', released_at: '2018-04-27',
     image_uri: null, scryfall_uri: null, edhrec_rank: 200, artist: 'Brom',
+    price_usd: null, price_usd_foil: null, price_eur: null, price_eur_foil: null, price_tix: null,
   };
 }
 
@@ -50,6 +53,7 @@ function makeElvishArchdruid(): CardRow {
     color_identity: '["G"]', keywords: '[]', rarity: 'rare',
     set_code: 'm10', set_name: 'Magic 2010', released_at: '2009-07-17',
     image_uri: null, scryfall_uri: null, edhrec_rank: 80, artist: 'Karl Kopinski',
+    price_usd: null, price_usd_foil: null, price_eur: null, price_eur_foil: null, price_tix: null,
   };
 }
 
@@ -62,6 +66,7 @@ function makeBloodArtist(): CardRow {
     color_identity: '["B"]', keywords: '[]', rarity: 'uncommon',
     set_code: 'avr', set_name: 'Avacyn Restored', released_at: '2012-05-04',
     image_uri: null, scryfall_uri: null, edhrec_rank: 30, artist: 'Johannes Voss',
+    price_usd: null, price_usd_foil: null, price_eur: null, price_eur_foil: null, price_tix: null,
   };
 }
 
@@ -74,6 +79,7 @@ function makeHardenedScales(): CardRow {
     color_identity: '["G"]', keywords: '[]', rarity: 'rare',
     set_code: 'ktk', set_name: 'Khans of Tarkir', released_at: '2014-09-26',
     image_uri: null, scryfall_uri: null, edhrec_rank: 60, artist: 'Mark Winters',
+    price_usd: null, price_usd_foil: null, price_eur: null, price_eur_foil: null, price_tix: null,
   };
 }
 

@@ -44,6 +44,7 @@ export interface ScryfallCard {
   legalities?: Record<string, string>;
   card_faces?: ScryfallCardFace[];
   layout?: string;
+  prices?: { usd?: string | null; usd_foil?: string | null; eur?: string | null; eur_foil?: string | null; tix?: string | null };
 }
 
 export interface ScryfallCardFace {
@@ -145,11 +146,13 @@ export function ingestCards(db: Database.Database, cards: ScryfallCard[]): {
     INSERT OR REPLACE INTO cards
     (id, name, mana_cost, cmc, type_line, oracle_text, power, toughness,
      loyalty, colors, color_identity, keywords, rarity, set_code, set_name,
-     released_at, image_uri, scryfall_uri, edhrec_rank, artist)
+     released_at, image_uri, scryfall_uri, edhrec_rank, artist,
+     price_usd, price_usd_foil, price_eur, price_eur_foil, price_tix)
     VALUES
     (@id, @name, @mana_cost, @cmc, @type_line, @oracle_text, @power, @toughness,
      @loyalty, @colors, @color_identity, @keywords, @rarity, @set_code, @set_name,
-     @released_at, @image_uri, @scryfall_uri, @edhrec_rank, @artist)
+     @released_at, @image_uri, @scryfall_uri, @edhrec_rank, @artist,
+     @price_usd, @price_usd_foil, @price_eur, @price_eur_foil, @price_tix)
   `);
 
   const insertFace = db.prepare(`
@@ -201,6 +204,11 @@ export function ingestCards(db: Database.Database, cards: ScryfallCard[]): {
           scryfall_uri: card.scryfall_uri ?? null,
           edhrec_rank: card.edhrec_rank ?? null,
           artist: card.artist ?? null,
+          price_usd: card.prices?.usd ? parseFloat(card.prices.usd) : null,
+          price_usd_foil: card.prices?.usd_foil ? parseFloat(card.prices.usd_foil) : null,
+          price_eur: card.prices?.eur ? parseFloat(card.prices.eur) : null,
+          price_eur_foil: card.prices?.eur_foil ? parseFloat(card.prices.eur_foil) : null,
+          price_tix: card.prices?.tix ? parseFloat(card.prices.tix) : null,
         });
         cardsInserted++;
 

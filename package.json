@@ -37,6 +37,7 @@
   "engines": {
     "node": ">=18"
   },
+  "mcpName": "io.github.gregario/mtg-oracle",
   "keywords": [
     "mcp",
     "magic-the-gathering",

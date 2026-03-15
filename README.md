@@ -1,8 +1,20 @@
+<!-- mcp-name: io.github.gregario/mtg-oracle -->
+
 # mtg-oracle
+
+[![npm version](https://img.shields.io/npm/v/mtg-oracle.svg)](https://www.npmjs.com/package/mtg-oracle)
+[![npm downloads](https://img.shields.io/npm/dm/mtg-oracle.svg)](https://www.npmjs.com/package/mtg-oracle)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Node.js](https://img.shields.io/badge/node-%3E%3D18-brightgreen.svg)](https://nodejs.org)
+[![MCP](https://img.shields.io/badge/MCP-compatible-blue.svg)](https://modelcontextprotocol.io)
+
+[![mtg-oracle MCP server](https://glama.ai/mcp/servers/gregario/mtg-oracle/badges/card.svg)](https://glama.ai/mcp/servers/gregario/mtg-oracle)
 
 Magic: The Gathering MCP server. Card search, rules lookup, deck analysis, and Commander intelligence.
 
 Provides 12 tools for AI assistants to answer questions about Magic cards, game rules, combos, synergies, and format meta via the [Model Context Protocol](https://modelcontextprotocol.io).
+
+**Not just another Scryfall wrapper.** mtg-oracle downloads card data, comprehensive rules, and combo databases locally into SQLite for fast offline queries, and ships with curated MTG knowledge (archetypes, format primers, commander strategies, mana base guidelines) that makes LLMs genuinely competent at Magic.
 
 ## Installation
 
@@ -41,6 +53,12 @@ Or if installed globally:
     }
   }
 }
+```
+
+## Claude Code Configuration
+
+```bash
+claude mcp add mtg-oracle -- npx -y mtg-oracle
 ```
 
 ## Data

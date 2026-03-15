@@ -1,11 +1,11 @@
 ## ADDED Requirements
 
 ### Requirement: MCP server initialization
-The system SHALL start as an MCP server using stdio transport, register all 8 tools, and initialize the data pipeline before accepting tool calls.
+The system SHALL start as an MCP server using stdio transport, register all 12 tools, and initialize the data pipeline before accepting tool calls.
 
 #### Scenario: Server startup
 - **WHEN** the server process starts
-- **THEN** the system SHALL initialize the data pipeline (check/download/update), connect to SQLite, register all tools with the MCP SDK, and begin accepting tool calls via stdio
+- **THEN** the system SHALL initialize the data pipeline (check/download/update all 3 sources), connect to SQLite, register all 12 tools with the MCP SDK, and begin accepting tool calls via stdio
 
 #### Scenario: Data pipeline completes before tool registration
 - **WHEN** the server starts for the first time (no local data)
@@ -13,7 +13,7 @@ The system SHALL start as an MCP server using stdio transport, register all 8 to
 
 #### Scenario: Server metadata
 - **WHEN** an MCP client requests server info
-- **THEN** the system SHALL report name "mtg-oracle", version from package.json, and list all 8 available tools with descriptions
+- **THEN** the system SHALL report name "mtg-oracle", version from package.json, and list all 12 available tools with descriptions
 
 ### Requirement: Tool input validation
 The system SHALL validate all tool inputs using Zod schemas and return clear error messages for invalid inputs.
@@ -39,7 +39,15 @@ All tools SHALL return structured text responses optimized for LLM consumption, 
 
 #### Scenario: Full card data
 - **WHEN** `get_card` returns a card
-- **THEN** the response SHALL be formatted with clear section headers (Name, Mana Cost, Type, Oracle Text, Stats, Legality, etc.)
+- **THEN** the response SHALL be formatted with clear section headers (Name, Mana Cost, Type, Oracle Text, Stats, Legality, Rulings, etc.)
+
+#### Scenario: Rules text
+- **WHEN** `lookup_rule` or `get_keyword` returns rules
+- **THEN** the response SHALL include section numbers as references and format hierarchically
+
+#### Scenario: Combo results
+- **WHEN** `find_combos` returns combos
+- **THEN** each combo SHALL be formatted with card list, prerequisites, steps, and results clearly separated
 
 #### Scenario: Error responses
 - **WHEN** any tool encounters an error
@@ -55,3 +63,7 @@ Each tool SHALL have a description that explains to an LLM WHEN to call it, foll
 #### Scenario: Tool descriptions distinguish similar tools
 - **WHEN** an LLM must choose between `search_cards` and `search_by_mechanic`
 - **THEN** the descriptions SHALL make clear that `search_cards` is for general queries (name, type, color, text) while `search_by_mechanic` is specifically for finding cards by keyword abilities and mechanics
+
+#### Scenario: Rules tools are distinguishable
+- **WHEN** an LLM must choose between `lookup_rule`, `get_glossary`, and `get_keyword`
+- **THEN** the descriptions SHALL make clear that `lookup_rule` searches the full rules text, `get_glossary` looks up defined terms, and `get_keyword` returns keyword ability/action definitions specifically

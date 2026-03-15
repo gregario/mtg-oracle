@@ -1,28 +1,47 @@
 ## ADDED Requirements
 
-### Requirement: Keyword definitions
-The system SHALL include curated plain-English definitions for all evergreen and common MTG keywords (~60 keywords).
-
-#### Scenario: Evergreen keyword lookup
-- **WHEN** the keyword "deathtouch" is referenced
-- **THEN** the system SHALL provide: keyword name, category (evergreen/keyword action/ability word), plain-English definition, and any notable rules interactions
-
-#### Scenario: Complete keyword coverage
-- **WHEN** the system is queried for keyword information
-- **THEN** the system SHALL have definitions for at minimum: flying, first strike, double strike, deathtouch, trample, lifelink, haste, vigilance, reach, menace, hexproof, shroud, indestructible, flash, defender, ward, cascade, convoke, delve, dredge, equip, flashback, kicker, madness, morph, mutate, ninjutsu, proliferate, prowess, suspend, affinity, annihilator, changeling, companion, crew, cycling, dash, devoid, emerge, embalm, enrage, eternalize, evoke, evolve, exalted, exploit, explore, fabricate, fading, fear, flanking, food, forecast, fortell, horsemanship, improvise, infect, intimidate, landfall, living weapon, miracle, modular, myriad, overload, partner, persist, phasing, protection, provoke, raid, rally, rampage, rebound, recover, reinforce, renown, replicate, retrace, scavenge, shadow, skulk, soulbond, spectacle, splice, storm, sunburst, surge, totem armor, transmute, undying, unearth, wither
-
 ### Requirement: Archetype definitions
-The system SHALL include curated definitions of common MTG deck archetypes with descriptions, key characteristics, and example strategies.
+The system SHALL include curated definitions of ~20 common MTG deck archetypes with descriptions, key mechanics, typical colors, example cards, and strengths/weaknesses.
 
 #### Scenario: Archetype query
 - **WHEN** the archetype "aristocrats" is referenced
-- **THEN** the system SHALL provide: archetype name, description (sacrifice-based value engines), typical game plan, key card categories (sacrifice outlets, death triggers, token generators), and which formats it appears in
+- **THEN** the system SHALL provide: archetype name, description (sacrifice-based value engines), typical game plan, key mechanics, typical colors, example cards, strengths, weaknesses, and which formats it appears in
 
 #### Scenario: Complete archetype coverage
 - **WHEN** the system is queried for archetype information
-- **THEN** the system SHALL have definitions for at minimum: aggro, midrange, control, combo, tempo, ramp, tokens, aristocrats, voltron, storm, stax, group hug, mill, reanimator, spellslinger, tribal, landfall, blink/flicker, superfriends, infect, equipment, enchantress, graveyard, toolbox
+- **THEN** the system SHALL have definitions for at minimum: aggro, midrange, control, combo, tempo, ramp, tokens, aristocrats, voltron, storm, stax, group_hug, mill, reanimator, spellslinger, tribal, landfall, enchantress, artifacts, superfriends
 
-### Requirement: Commander archetypes by color identity
+### Requirement: Format primers
+The system SHALL include curated format primer data for 8-10 major MTG formats.
+
+#### Scenario: Format primer query
+- **WHEN** the format "Commander" is queried
+- **THEN** the system SHALL return: format description, card pool rules, deck count (100), rotation info (none), banned list philosophy, power level description, key characteristics, and typical game dynamics
+
+#### Scenario: Complete format coverage
+- **WHEN** format information is requested
+- **THEN** the system SHALL have primers for at minimum: Standard, Modern, Pioneer, Legacy, Vintage, Commander, Pauper, Draft/Limited
+
+### Requirement: Mana base guidelines
+The system SHALL include curated mana base recommendations organized by color count and format.
+
+#### Scenario: Mono-color mana base
+- **WHEN** mana base guidance for a mono-color deck is queried
+- **THEN** the system SHALL return recommended land count, utility land suggestions, and format-specific considerations
+
+#### Scenario: Multi-color mana base
+- **WHEN** mana base guidance for a 3-color deck is queried
+- **THEN** the system SHALL return recommended land count by format, mana fixing categories (fetch lands, shock lands, dual lands, tri-lands, etc.), and color distribution advice
+
+#### Scenario: Format-specific land counts
+- **WHEN** mana base guidance is queried with a specific format
+- **THEN** the system SHALL return format-appropriate land count recommendations (e.g., 60-card formats vs Commander's 100 cards)
+
+#### Scenario: Color count coverage
+- **WHEN** mana base data is queried
+- **THEN** the system SHALL have guidelines for mono, 2-color, 3-color, 4-color, and 5-color decks
+
+### Requirement: Commander strategy patterns
 The system SHALL include curated knowledge of common Commander strategies organized by color identity.
 
 #### Scenario: Color identity strategy query
@@ -33,24 +52,32 @@ The system SHALL include curated knowledge of common Commander strategies organi
 - **WHEN** the color identity "G" (mono-green) is queried
 - **THEN** the system SHALL return mono-green strategies (ramp, stompy, elfball, voltron) and key staples unique to mono-green commander decks
 
+#### Scenario: Power level brackets
+- **WHEN** strategy data is queried
+- **THEN** the system SHALL include power level bracket information (casual, focused, optimized, competitive) with descriptions of what each bracket means
+
+#### Scenario: Staple cards per color identity
+- **WHEN** a color identity is queried
+- **THEN** the system SHALL include staple cards commonly run in that color identity
+
 #### Scenario: All color combinations covered
 - **WHEN** any valid 1-5 color combination is queried
-- **THEN** the system SHALL have strategy information for that color identity (32 possible identities including colorless)
+- **THEN** the system SHALL have strategy information for that color identity (all mono, guild, shard/wedge, and 4-5 color combinations plus colorless)
 
 ### Requirement: Format staple lists
-The system SHALL include curated lists of commonly played cards for each major format, organized by archetype where applicable.
+The system SHALL include curated lists of commonly played staple cards for each major format, organized by archetype where applicable.
 
 #### Scenario: Commander staples
 - **WHEN** Commander format staples are requested
-- **THEN** the system SHALL return 20-30 universally played Commander staples (e.g., Sol Ring, Command Tower, Swords to Plowshares, Cyclonic Rift, Demonic Tutor)
+- **THEN** the system SHALL return 20-30 universally played Commander staples (e.g., Sol Ring, Command Tower, Swords to Plowshares, Cyclonic Rift)
 
-#### Scenario: Modern staples by archetype
-- **WHEN** Modern staples for "burn" archetype are requested
-- **THEN** the system SHALL return staple cards for Modern burn (e.g., Lightning Bolt, Goblin Guide, Eidolon of the Great Revel)
+#### Scenario: Format staples with archetype filter
+- **WHEN** staples for a format and archetype combination are requested (e.g., Modern + burn)
+- **THEN** the system SHALL return staple cards for that archetype in that format
 
 #### Scenario: Format coverage
 - **WHEN** staples are requested
-- **THEN** the system SHALL have staple lists for: Standard (generic good cards), Modern, Pioneer, Legacy, Vintage, Commander, and Pauper
+- **THEN** the system SHALL have staple lists for: Standard, Modern, Pioneer, Legacy, Vintage, Commander, and Pauper
 
 ### Requirement: Synergy category definitions
 The system SHALL include curated synergy categories that classify cards by strategic role, enabling synergy-based card discovery.
@@ -61,4 +88,4 @@ The system SHALL include curated synergy categories that classify cards by strat
 
 #### Scenario: Complete synergy category coverage
 - **WHEN** the system is queried for synergy categories
-- **THEN** the system SHALL have definitions for at minimum: tribal, sacrifice/aristocrats, +1/+1 counters, graveyard, tokens, artifacts, enchantments, spellslinger/instants-sorceries, voltron/equipment, landfall, blink/flicker, mill/self-mill, ramp, lifegain/life matters, discard/wheels, treasure, food, clues/investigate
+- **THEN** the system SHALL have definitions for at minimum: tribal, sacrifice/aristocrats, +1/+1 counters, graveyard, tokens, artifacts, enchantments, spellslinger, voltron/equipment, landfall, blink/flicker, mill/self-mill, ramp, lifegain, discard/wheels, treasure

@@ -7,8 +7,6 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Node.js](https://img.shields.io/badge/node-%3E%3D18-brightgreen.svg)](https://nodejs.org)
 [![MCP](https://img.shields.io/badge/MCP-compatible-blue.svg)](https://modelcontextprotocol.io)
-
-[![mtg-oracle MCP server](https://glama.ai/mcp/servers/gregario/mtg-oracle/badges/card.svg)](https://glama.ai/mcp/servers/gregario/mtg-oracle)
 [![gregario/mtg-oracle MCP server](https://glama.ai/mcp/servers/gregario/mtg-oracle/badges/score.svg)](https://glama.ai/mcp/servers/gregario/mtg-oracle)
 
 Magic: The Gathering MCP server. Card search, rules lookup, deck analysis, and Commander intelligence.

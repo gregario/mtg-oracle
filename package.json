@@ -1,6 +1,6 @@
 {
   "name": "mtg-oracle",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "Magic: The Gathering MCP server with card search, deck analysis, and format intelligence",
   "type": "module",
   "license": "MIT",

@@ -1,8 +1,8 @@
 {
-  "version": "0.2.0",
+  "version": "0.2.1",
   "tools_count": 14,
   "tests_count": 461,
-  "npm": { "published": true, "version": "0.2.0" },
+  "npm": { "published": true, "version": "0.2.1" },
   "glama": { "listed": true, "score_badge": true, "ownership_claimed": true },
   "mcp_registry": { "registered": true, "mcp_name": "io.github.gregario/mtg-oracle" },
   "awesome_mcp_servers": { "pr_submitted": false, "pr_url": null },

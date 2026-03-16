@@ -15,10 +15,13 @@ export interface AcademyRuinsRule {
   ruleText: string;
 }
 
-/** Academy Ruins CR response: array of rules with a navigation tree. */
-export interface AcademyRuinsCRResponse {
-  data: AcademyRuinsRule[];
-}
+/**
+ * Academy Ruins CR response: a flat object keyed by rule number.
+ * Each value has ruleNumber, ruleText, examples, fragment, navigation.
+ */
+export type AcademyRuinsCRResponse =
+  | Record<string, AcademyRuinsRule & { examples: unknown; fragment: string; navigation: unknown }>
+  | { data: AcademyRuinsRule[] };
 
 /** Glossary entry from Academy Ruins. */
 export interface AcademyRuinsGlossaryEntry {
@@ -26,9 +29,13 @@ export interface AcademyRuinsGlossaryEntry {
   definition: string;
 }
 
-export interface AcademyRuinsGlossaryResponse {
-  data: AcademyRuinsGlossaryEntry[];
-}
+/**
+ * Academy Ruins glossary response: a flat object keyed by term,
+ * or the legacy { data: [...] } format.
+ */
+export type AcademyRuinsGlossaryResponse =
+  | Record<string, AcademyRuinsGlossaryEntry>
+  | { data: AcademyRuinsGlossaryEntry[] };
 
 // --- Download helpers ---
 
@@ -49,7 +56,17 @@ export async function fetchComprehensiveRules(
     throw new Error(`Academy Ruins CR request failed: ${resp.status}`);
   }
   const body = await resp.json() as AcademyRuinsCRResponse;
-  return body.data;
+
+  // Handle both formats: legacy { data: [...] } and current flat object
+  if ('data' in body && Array.isArray(body.data)) {
+    return body.data;
+  }
+
+  // Current format: flat object keyed by rule number
+  return Object.values(body).map((entry) => ({
+    ruleNumber: entry.ruleNumber,
+    ruleText: entry.ruleText,
+  }));
 }
 
 /**
@@ -66,7 +83,17 @@ export async function fetchGlossary(
     throw new Error(`Academy Ruins glossary request failed: ${resp.status}`);
   }
   const body = await resp.json() as AcademyRuinsGlossaryResponse;
-  return body.data;
+
+  // Handle both formats: legacy { data: [...] } and current flat object
+  if ('data' in body && Array.isArray(body.data)) {
+    return body.data;
+  }
+
+  // Current format: flat object keyed by term
+  return Object.values(body).map((entry) => ({
+    term: entry.term,
+    definition: entry.definition,
+  }));
 }
 
 // --- Parsing helpers ---

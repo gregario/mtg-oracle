@@ -111,7 +111,9 @@ export async function runPipeline(
   options: PipelineOptions = {},
 ): Promise<PipelineResult> {
   const { dataDir, fetchFn = fetch, forceRefresh = false } = options;
-  const spellbookApi = options.spellbookApi ?? new VariantsApi(new Configuration());
+  const spellbookApi = options.spellbookApi ?? new VariantsApi(new Configuration({
+    basePath: 'https://backend.commanderspellbook.com',
+  }));
 
   const lastUpdate = loadLastUpdate(dataDir);
   const firstRun = isFirstRun(lastUpdate);

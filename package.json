@@ -16,7 +16,7 @@
     "dist/data/schema.sql"
   ],
   "scripts": {
-    "build": "tsc && cp src/data/schema.sql dist/data/schema.sql",
+    "build": "tsc && cp src/data/schema.sql dist/data/schema.sql && chmod +x dist/server.js",
     "test": "vitest run",
     "test:watch": "vitest",
     "start": "node dist/server.js",

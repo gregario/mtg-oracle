@@ -297,6 +297,16 @@ async function main(): Promise<void> {
   console.error(`[mtg-oracle] v${version} starting on stdio...`);
   await server.connect(transport);
   console.error(`[mtg-oracle] Server running — 14 tools registered`);
+
+  process.on('SIGINT', async () => {
+    await server.close();
+    process.exit(0);
+  });
+
+  process.on('SIGTERM', async () => {
+    await server.close();
+    process.exit(0);
+  });
 }
 
 main().catch((err) => {

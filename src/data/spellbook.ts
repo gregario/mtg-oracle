@@ -147,7 +147,9 @@ export async function runSpellbookPipeline(
   db: Database.Database,
   api?: VariantsApi,
 ): Promise<{ combosInserted: number }> {
-  const variantsApi = api ?? new VariantsApi(new Configuration());
+  const variantsApi = api ?? new VariantsApi(new Configuration({
+    basePath: 'https://backend.commanderspellbook.com',
+  }));
 
   console.error('[spellbook] Fetching combos from Commander Spellbook...');
 

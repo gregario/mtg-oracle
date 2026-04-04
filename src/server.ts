@@ -68,18 +68,7 @@ async function main(): Promise<void> {
   // Initialize database
   const db = getDatabase();
 
-  // Run data pipeline (download/update check)
-  // On first run this downloads card data; on subsequent runs it checks for updates
-  try {
-    console.error(`[mtg-oracle] Starting data pipeline...`);
-    const pipelineResult = await runPipeline(db);
-    console.error(`[mtg-oracle] Pipeline complete — Scryfall: ${pipelineResult.scryfall.success ? 'ok' : 'failed'}, Rules: ${pipelineResult.rules.success ? 'ok' : 'failed'}, Spellbook: ${pipelineResult.spellbook.success ? 'ok' : 'failed'}`);
-  } catch (err) {
-    console.error(`[mtg-oracle] Data pipeline error: ${err instanceof Error ? err.message : String(err)}`);
-    console.error('[mtg-oracle] Continuing with existing data (if any)...');
-  }
-
-  // Create MCP server
+  // Create MCP server (connect transport first, then update data in background)
   const server = new McpServer(
     { name: 'mtg-oracle', version },
     { capabilities: { tools: {} } },
@@ -297,6 +286,17 @@ async function main(): Promise<void> {
   console.error(`[mtg-oracle] v${version} starting on stdio...`);
   await server.connect(transport);
   console.error(`[mtg-oracle] Server running — 14 tools registered`);
+
+  // Run data pipeline in background (download/update check)
+  // Server is already accepting requests with existing cached data
+  runPipeline(db)
+    .then((result) => {
+      console.error(`[mtg-oracle] Pipeline complete — Scryfall: ${result.scryfall.success ? 'ok' : 'failed'}, Rules: ${result.rules.success ? 'ok' : 'failed'}, Spellbook: ${result.spellbook.success ? 'ok' : 'failed'}`);
+    })
+    .catch((err) => {
+      console.error(`[mtg-oracle] Data pipeline error: ${err instanceof Error ? err.message : String(err)}`);
+      console.error('[mtg-oracle] Continuing with existing data (if any)...');
+    });
 
   process.on('SIGINT', async () => {
     await server.close();

@@ -6,7 +6,9 @@ import { getDatabase } from '../../src/data/db.js';
 import {
   loadLastUpdate,
   saveLastUpdate,
+  needsRefresh,
   needsSpellbookRefresh,
+  needsRulesRefresh,
   isFirstRun,
   hasExistingData,
   runPipeline,
@@ -203,6 +205,38 @@ describe('Pipeline Orchestrator', () => {
     });
   });
 
+  describe('needsRefresh', () => {
+    it('returns true when no timestamp', () => {
+      expect(needsRefresh(undefined, 7)).toBe(true);
+    });
+
+    it('returns true when older than TTL', () => {
+      const eightDaysAgo = new Date(Date.now() - 8 * 24 * 60 * 60 * 1000).toISOString();
+      expect(needsRefresh(eightDaysAgo, 7)).toBe(true);
+    });
+
+    it('returns false when newer than TTL', () => {
+      const oneDayAgo = new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString();
+      expect(needsRefresh(oneDayAgo, 7)).toBe(false);
+    });
+  });
+
+  describe('needsRulesRefresh', () => {
+    it('returns true when no rules timestamp', () => {
+      expect(needsRulesRefresh({})).toBe(true);
+    });
+
+    it('returns true when older than 7 days', () => {
+      const eightDaysAgo = new Date(Date.now() - 8 * 24 * 60 * 60 * 1000).toISOString();
+      expect(needsRulesRefresh({ rules: eightDaysAgo })).toBe(true);
+    });
+
+    it('returns false when newer than 7 days', () => {
+      const oneDayAgo = new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString();
+      expect(needsRulesRefresh({ rules: oneDayAgo })).toBe(false);
+    });
+  });
+
   describe('isFirstRun', () => {
     it('returns true when all timestamps are missing', () => {
       expect(isFirstRun({})).toBe(true);
@@ -317,6 +351,28 @@ describe('Pipeline Orchestrator', () => {
       expect(result.scryfall.success).toBe(false);
       expect(result.rules.success).toBe(true);
       expect(result.spellbook.success).toBe(true);
+    });
+
+    it('skips rules when data is fresh', async () => {
+      const recentTimestamp = new Date().toISOString();
+      saveLastUpdate({ scryfall: '2026-03-14T00:00:00Z', rules: recentTimestamp }, tmpDir);
+
+      let rulesFetchCalled = false;
+      const mockFetch = ((input: string | URL | Request) => {
+        const url = typeof input === 'string' ? input : input instanceof URL ? input.toString() : input.url;
+        if (url.includes('/cr') || url.includes('glossary')) {
+          rulesFetchCalled = true;
+        }
+        return makeMockFetch({})(input);
+      }) as typeof fetch;
+
+      await runPipeline(db, {
+        dataDir: tmpDir,
+        fetchFn: mockFetch,
+        spellbookApi: makeMockSpellbookApi(),
+      });
+
+      expect(rulesFetchCalled).toBe(false);
     });
 
     it('skips spellbook when data is fresh', async () => {

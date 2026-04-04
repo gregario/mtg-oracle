@@ -60,17 +60,32 @@ export function saveLastUpdate(lastUpdate: LastUpdate, dataDir?: string): void {
 // --- Update checks ---
 
 const SPELLBOOK_REFRESH_DAYS = 7;
+const RULES_REFRESH_DAYS = 7;
+
+/**
+ * Check if a source needs refreshing based on its last-update timestamp and a TTL in days.
+ */
+export function needsRefresh(lastTimestamp: string | undefined, ttlDays: number): boolean {
+  if (!lastTimestamp) return true;
+  const lastDate = new Date(lastTimestamp);
+  const now = new Date();
+  const diffMs = now.getTime() - lastDate.getTime();
+  const diffDays = diffMs / (1000 * 60 * 60 * 24);
+  return diffDays >= ttlDays;
+}
 
 /**
  * Check if the spellbook data needs refreshing (older than 7 days).
  */
 export function needsSpellbookRefresh(lastUpdate: LastUpdate): boolean {
-  if (!lastUpdate.spellbook) return true;
-  const lastDate = new Date(lastUpdate.spellbook);
-  const now = new Date();
-  const diffMs = now.getTime() - lastDate.getTime();
-  const diffDays = diffMs / (1000 * 60 * 60 * 24);
-  return diffDays >= SPELLBOOK_REFRESH_DAYS;
+  return needsRefresh(lastUpdate.spellbook, SPELLBOOK_REFRESH_DAYS);
+}
+
+/**
+ * Check if rules data needs refreshing (older than 7 days).
+ */
+export function needsRulesRefresh(lastUpdate: LastUpdate): boolean {
+  return needsRefresh(lastUpdate.rules, RULES_REFRESH_DAYS);
 }
 
 /**
@@ -133,6 +148,7 @@ export async function runPipeline(
     );
     result.scryfall = { success: true, updated: scryfallResult.updated };
     lastUpdate.scryfall = scryfallResult.updatedAt;
+    saveLastUpdate(lastUpdate, dataDir);
   } catch (err) {
     const message = err instanceof Error ? err.message : String(err);
     console.error(`[pipeline] Scryfall pipeline failed: ${message}`);
@@ -141,9 +157,15 @@ export async function runPipeline(
 
   // --- Rules ---
   try {
-    await runRulesPipeline(db, fetchFn);
-    result.rules = { success: true };
-    lastUpdate.rules = new Date().toISOString();
+    if (forceRefresh || needsRulesRefresh(lastUpdate)) {
+      await runRulesPipeline(db, fetchFn);
+      result.rules = { success: true };
+      lastUpdate.rules = new Date().toISOString();
+      saveLastUpdate(lastUpdate, dataDir);
+    } else {
+      console.error('[pipeline] Rules data is fresh, skipping');
+      result.rules = { success: true };
+    }
   } catch (err) {
     const message = err instanceof Error ? err.message : String(err);
     console.error(`[pipeline] Rules pipeline failed: ${message}`);
@@ -156,6 +178,7 @@ export async function runPipeline(
       await runSpellbookPipeline(db, spellbookApi);
       result.spellbook = { success: true };
       lastUpdate.spellbook = new Date().toISOString();
+      saveLastUpdate(lastUpdate, dataDir);
     } else {
       console.error('[pipeline] Spellbook data is fresh, skipping');
       result.spellbook = { success: true };
@@ -178,9 +201,6 @@ export async function runPipeline(
       );
     }
   }
-
-  // Save updated timestamps
-  saveLastUpdate(lastUpdate, dataDir);
 
   return result;
 }

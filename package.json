@@ -38,6 +38,14 @@
     "node": ">=18"
   },
   "mcpName": "io.github.gregario/mtg-oracle",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/gregario/mtg-oracle.git"
+  },
+  "homepage": "https://github.com/gregario/mtg-oracle#readme",
+  "bugs": {
+    "url": "https://github.com/gregario/mtg-oracle/issues"
+  },
   "keywords": [
     "mcp",
     "magic-the-gathering",

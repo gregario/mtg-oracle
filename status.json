@@ -5,7 +5,7 @@
   "npm": { "published": true, "version": "0.2.2" },
   "glama": { "listed": true, "score_badge": true, "ownership_claimed": true },
   "mcp_registry": { "registered": true, "mcp_name": "io.github.gregario/mtg-oracle" },
-  "awesome_mcp_servers": { "pr_submitted": false, "pr_url": null },
-  "github": { "release_tag": "v0.2.0", "sponsor_enabled": false },
+  "awesome_mcp_servers": { "pr_submitted": true, "pr_url": "https://github.com/punkpeye/awesome-mcp-servers/pull/3287", "merged": true },
+  "github": { "release_tag": "v0.2.2", "sponsor_enabled": false },
   "ci": { "oidc_publishing": false }
 }

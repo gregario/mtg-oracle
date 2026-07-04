@@ -1,3 +1,5 @@
+[![MseeP.ai Security Assessment Badge](https://mseep.net/pr/gregario-mtg-oracle-badge.png)](https://mseep.ai/app/gregario-mtg-oracle)
+
 <!-- mcp-name: io.github.gregario/mtg-oracle -->
 
 # mtg-oracle

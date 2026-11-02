@@ -68,7 +68,7 @@ By default mtg-oracle speaks stdio, for clients that launch it as a local proces
 npx mtg-oracle --http
 ```
 
-MCP is served at `POST /mcp`, and `GET /healthz` returns `{"status":"ok","version":"..."}` for health checks. The server is stateless: there are no sessions, so it can sit behind any reverse proxy.
+MCP is served at `POST /mcp`, and `GET /healthz` returns `{"status":"ok","version":"...","lastUpdate":{...}}` for health checks. The server is stateless: there are no sessions, so it can sit behind any reverse proxy.
 
 | Variable | Default | Description |
 |----------|---------|-------------|
@@ -80,7 +80,14 @@ The HTTP server has no authentication of its own. To expose it beyond your machi
 
 ## Data
 
-On first run, mtg-oracle downloads card data from Scryfall and rules data from Academy Ruins. Data is stored in `~/.mtg-oracle/` and updated automatically on subsequent runs. No card data is bundled in the npm package.
+On first run, mtg-oracle downloads card data from Scryfall and rules data from Academy Ruins. Data is stored in `~/.mtg-oracle/` and updated automatically on subsequent runs, and every 24 hours while the server keeps running. Each check downloads only what has changed. No card data is bundled in the npm package.
+
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `MTG_ORACLE_DATA_DIR` | `~/.mtg-oracle` | Where the SQLite database and update timestamps are stored. |
+| `MTG_ORACLE_REFRESH_HOURS` | `24` | Hours between update checks while running. `0` checks only at startup. |
+
+With the HTTP transport, `GET /healthz` also reports when each source was last updated, so monitoring can alert on stale data.
 
 ## Tools
 

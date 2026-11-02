@@ -7,6 +7,7 @@ mtg-oracle only speaks stdio, so it works only with clients that launch it as a 
 - **Tool registration moves into `createServer(db, version)`** (`src/mcp.ts`), so a server can be created per transport, per request, or per test.
 - **Streamable HTTP transport** (`src/http.ts`), opt-in with `--http` or `MTG_ORACLE_TRANSPORT=http`. MCP at `POST /mcp`, stateless (no sessions; one server and transport per request, JSON responses), `GET /healthz` for health checks. `GET`/`DELETE /mcp` return 405, as there are no sessions or server-initiated streams.
 - **Configuration** (`src/config.ts`): `MTG_ORACLE_HOST` (default `127.0.0.1`) and `MTG_ORACLE_PORT` (default `3000`). Invalid values stop the server at startup.
+- **Long-running servers**: `MTG_ORACLE_DATA_DIR` overrides `~/.mtg-oracle` (e.g. for a container volume). The data pipeline re-runs every `MTG_ORACLE_REFRESH_HOURS` (default 24, 0 disables), skipping a tick if the previous run is still going; it already downloads only what changed. `/healthz` reports each source's last update, so monitoring can alert on stale data.
 - stdio stays the default, so existing installs are unchanged.
 
 ## Capabilities
@@ -15,6 +16,7 @@ mtg-oracle only speaks stdio, so it works only with clients that launch it as a 
 
 ### Modified Capabilities
 - `mcp-server`: may serve over streamable HTTP as well as stdio.
+- `data-pipeline`: configurable data directory; periodic refresh while running.
 
 ## Impact
 

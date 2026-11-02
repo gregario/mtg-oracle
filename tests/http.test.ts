@@ -1,18 +1,24 @@
 import { describe, it, expect, beforeAll, afterAll } from 'vitest';
+import fs from 'node:fs';
+import os from 'node:os';
+import path from 'node:path';
 import type { AddressInfo } from 'node:net';
 import type { Server } from 'node:http';
 import { Client } from '@modelcontextprotocol/sdk/client/index.js';
 import { StreamableHTTPClientTransport } from '@modelcontextprotocol/sdk/client/streamableHttp.js';
 import { getDatabase } from '../src/data/db.js';
+import { saveLastUpdate } from '../src/data/pipeline.js';
 import { createHttpServer } from '../src/http.js';
 
 describe('HTTP transport', () => {
   const db = getDatabase(':memory:');
+  const dataDir = fs.mkdtempSync(path.join(os.tmpdir(), 'mtg-oracle-http-'));
   let httpServer: Server;
   let baseUrl: string;
 
   beforeAll(async () => {
-    httpServer = createHttpServer(db, '1.2.3');
+    saveLastUpdate({ scryfall: '2026-10-01T00:00:00.000Z', rules: '2026-10-02T00:00:00.000Z' }, dataDir);
+    httpServer = createHttpServer(db, '1.2.3', dataDir);
     await new Promise<void>((resolve) => httpServer.listen(0, '127.0.0.1', resolve));
     const { port } = httpServer.address() as AddressInfo;
     baseUrl = `http://127.0.0.1:${port}`;
@@ -21,6 +27,7 @@ describe('HTTP transport', () => {
   afterAll(async () => {
     await new Promise<void>((resolve) => httpServer.close(() => resolve()));
     db.close();
+    fs.rmSync(dataDir, { recursive: true, force: true });
   });
 
   async function connectClient(): Promise<Client> {
@@ -47,10 +54,14 @@ describe('HTTP transport', () => {
     await Promise.all([a.close(), b.close()]);
   });
 
-  it('answers /healthz with status and version', async () => {
+  it('answers /healthz with status, version, and when each data source was last updated', async () => {
     const res = await fetch(`${baseUrl}/healthz`);
     expect(res.status).toBe(200);
-    expect(await res.json()).toEqual({ status: 'ok', version: '1.2.3' });
+    expect(await res.json()).toEqual({
+      status: 'ok',
+      version: '1.2.3',
+      lastUpdate: { scryfall: '2026-10-01T00:00:00.000Z', rules: '2026-10-02T00:00:00.000Z' },
+    });
   });
 
   it('rejects GET and DELETE on /mcp, since there are no sessions or server-initiated streams', async () => {

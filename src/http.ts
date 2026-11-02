@@ -10,6 +10,7 @@ import http from 'node:http';
 import type Database from 'better-sqlite3';
 import { StreamableHTTPServerTransport } from '@modelcontextprotocol/sdk/server/streamableHttp.js';
 import { createServer } from './mcp.js';
+import { loadLastUpdate } from './data/pipeline.js';
 
 const MCP_PATH = '/mcp';
 const HEALTH_PATH = '/healthz';
@@ -38,14 +39,15 @@ async function handleMcp(db: Database.Database, version: string, req: http.Incom
 
 /**
  * Creates an HTTP server exposing MCP at POST /mcp and a health check at GET /healthz.
- * The caller is responsible for calling listen().
+ * The health check reports when each data source was last updated (from `dataDir`),
+ * so monitoring can alert on stale data. The caller is responsible for calling listen().
  */
-export function createHttpServer(db: Database.Database, version: string): http.Server {
+export function createHttpServer(db: Database.Database, version: string, dataDir?: string): http.Server {
   return http.createServer((req, res) => {
     const { pathname } = new URL(req.url ?? '/', 'http://localhost');
 
     if (pathname === HEALTH_PATH && req.method === 'GET') {
-      sendJson(res, 200, { status: 'ok', version });
+      sendJson(res, 200, { status: 'ok', version, lastUpdate: loadLastUpdate(dataDir) });
       return;
     }
 

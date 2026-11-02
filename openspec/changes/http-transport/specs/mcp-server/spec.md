@@ -33,4 +33,4 @@ The HTTP transport SHALL expose a health endpoint for container orchestrators an
 
 #### Scenario: Health probe
 - **WHEN** a client sends `GET /healthz`
-- **THEN** the system SHALL respond 200 with `{"status":"ok","version":"<package version>"}`
+- **THEN** the system SHALL respond 200 with `{"status":"ok","version":"<package version>","lastUpdate":{...}}`, where `lastUpdate` holds each data source's last update timestamp

@@ -3,15 +3,18 @@
 /**
  * mtg-oracle MCP Server
  *
- * Exposes 12 Magic: The Gathering tools over the Model Context Protocol (stdio transport).
- * On startup: runs the data pipeline (download/update check), initializes the database,
- * registers all tools, and starts listening.
+ * Exposes 14 Magic: The Gathering tools over the Model Context Protocol, on stdio
+ * (default) or streamable HTTP (`--http` or MTG_ORACLE_TRANSPORT=http; see config.ts).
+ * On startup: initializes the database, starts listening, then runs the data pipeline
+ * (download/update check) in the background.
  */
 
 import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js';
 import { getDatabase } from './data/db.js';
 import { runPipeline } from './data/pipeline.js';
 import { createServer } from './mcp.js';
+import { createHttpServer } from './http.js';
+import { resolveConfig } from './config.js';
 import { createRequire } from 'node:module';
 
 // --- Version ---
@@ -30,19 +33,28 @@ function getVersion(): string {
 
 async function main(): Promise<void> {
   const version = getVersion();
+  const config = resolveConfig(process.argv.slice(2), process.env);
 
   // Initialize database
   const db = getDatabase();
 
-  // Create MCP server (connect transport first, then update data in background)
-  const server = createServer(db, version);
-
-  // --- Connect transport and start ---
-
-  const transport = new StdioServerTransport();
-  console.error(`[mtg-oracle] v${version} starting on stdio...`);
-  await server.connect(transport);
-  console.error(`[mtg-oracle] Server running — 14 tools registered`);
+  // Connect transport first, then update data in background
+  let close: () => Promise<void>;
+  if (config.transport === 'http') {
+    const httpServer = createHttpServer(db, version);
+    await new Promise<void>((resolve, reject) => {
+      httpServer.once('error', reject);
+      httpServer.listen(config.port, config.host, resolve);
+    });
+    console.error(`[mtg-oracle] v${version} listening on http://${config.host}:${config.port}/mcp — 14 tools registered`);
+    close = () => new Promise((resolve) => httpServer.close(() => resolve()));
+  } else {
+    const server = createServer(db, version);
+    console.error(`[mtg-oracle] v${version} starting on stdio...`);
+    await server.connect(new StdioServerTransport());
+    console.error(`[mtg-oracle] Server running — 14 tools registered`);
+    close = () => server.close();
+  }
 
   // Run data pipeline in background (download/update check)
   // Server is already accepting requests with existing cached data
@@ -56,12 +68,12 @@ async function main(): Promise<void> {
     });
 
   process.on('SIGINT', async () => {
-    await server.close();
+    await close();
     process.exit(0);
   });
 
   process.on('SIGTERM', async () => {
-    await server.close();
+    await close();
     process.exit(0);
   });
 }

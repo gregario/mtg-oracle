@@ -60,6 +60,24 @@ Or if installed globally:
 claude mcp add mtg-oracle -- npx -y mtg-oracle
 ```
 
+## Remote (HTTP) Server
+
+By default mtg-oracle speaks stdio, for clients that launch it as a local process. To serve remote clients instead, such as a claude.ai custom connector, start it with the streamable HTTP transport:
+
+```bash
+npx mtg-oracle --http
+```
+
+MCP is served at `POST /mcp`, and `GET /healthz` returns `{"status":"ok","version":"..."}` for health checks. The server is stateless: there are no sessions, so it can sit behind any reverse proxy.
+
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `MTG_ORACLE_TRANSPORT` | `stdio` | `stdio` or `http`. `--http` is a shortcut for `http`. |
+| `MTG_ORACLE_HOST` | `127.0.0.1` | Address to listen on. Use `0.0.0.0` to accept connections from other hosts or containers. |
+| `MTG_ORACLE_PORT` | `3000` | Port to listen on. |
+
+The HTTP server has no authentication of its own. To expose it beyond your machine, put it behind a reverse proxy that adds TLS and whatever access control you need.
+
 ## Data
 
 On first run, mtg-oracle downloads card data from Scryfall and rules data from Academy Ruins. Data is stored in `~/.mtg-oracle/` and updated automatically on subsequent runs. No card data is bundled in the npm package.

@@ -2,6 +2,7 @@ import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import Database from 'better-sqlite3';
 import fs from 'node:fs';
 import path from 'node:path';
+import { gzipSync } from 'node:zlib';
 import { getDatabase } from '../../src/data/db.js';
 import {
   loadLastUpdate,
@@ -40,17 +41,17 @@ function makeMockFetch(options: {
               id: 'bulk-oracle',
               type: 'oracle_cards',
               updated_at: '2026-03-15T10:00:00+00:00',
-              download_uri: 'https://data.scryfall.io/oracle-cards/test.json',
+              jsonl_download_uri: 'https://data.scryfall.io/oracle-cards/test.jsonl.gz',
               name: 'Oracle Cards',
-              size: 1000,
+              compressed_size: 1000,
             },
             {
               id: 'bulk-rulings',
               type: 'rulings',
               updated_at: '2026-03-15T10:00:00+00:00',
-              download_uri: 'https://data.scryfall.io/rulings/test.json',
+              jsonl_download_uri: 'https://data.scryfall.io/rulings/test.jsonl.gz',
               name: 'Rulings',
-              size: 500,
+              compressed_size: 500,
             },
           ],
         }),
@@ -61,40 +62,30 @@ function makeMockFetch(options: {
     // Scryfall oracle cards download
     if (url.includes('oracle-cards')) {
       if (!scryfallOk) return { ok: false, status: 500, text: async () => '{}' } as Response;
-      return {
-        ok: true,
-        status: 200,
-        text: async () => JSON.stringify([
-          {
-            id: 'scryfall-uuid',
-            oracle_id: 'oracle-001',
-            name: 'Test Card',
-            cmc: 1,
-            type_line: 'Instant',
-            oracle_text: 'Test text',
-            colors: ['R'],
-            color_identity: ['R'],
-            keywords: [],
-            rarity: 'common',
-            set: 'tst',
-            set_name: 'Test Set',
-            legalities: { standard: 'legal' },
-            layout: 'normal',
-          },
-        ]),
-        json: async () => [],
-      } as Response;
+      return new Response(gzipSync(JSON.stringify(
+        {
+          id: 'scryfall-uuid',
+          oracle_id: 'oracle-001',
+          name: 'Test Card',
+          cmc: 1,
+          type_line: 'Instant',
+          oracle_text: 'Test text',
+          colors: ['R'],
+          color_identity: ['R'],
+          keywords: [],
+          rarity: 'common',
+          set: 'tst',
+          set_name: 'Test Set',
+          legalities: { standard: 'legal' },
+          layout: 'normal',
+        },
+      ) + '\n'));
     }
 
     // Scryfall rulings download
     if (url.includes('rulings')) {
       if (!scryfallOk) return { ok: false, status: 500, text: async () => '{}' } as Response;
-      return {
-        ok: true,
-        status: 200,
-        text: async () => JSON.stringify([]),
-        json: async () => [],
-      } as Response;
+      return new Response(gzipSync(''));
     }
 
     // Academy Ruins glossary (must be checked before /cr)

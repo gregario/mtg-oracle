@@ -1,5 +1,6 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import Database from 'better-sqlite3';
+import { gzipSync } from 'node:zlib';
 import { getDatabase } from '../../src/data/db.js';
 import {
   fetchBulkDataMetadata,
@@ -15,20 +16,23 @@ import {
 
 // --- Mock helpers ---
 
-function mockFetch(responses: Record<string, { status: number; body: unknown }>): typeof fetch {
+type MockResponse = { status: number; body?: unknown; jsonl?: unknown[] };
+
+/** Encode items as Scryfall serves bulk files: one JSON object per line, gzipped. */
+function gzipJsonl(items: unknown[]): Buffer {
+  return gzipSync(items.map(item => JSON.stringify(item)).join('\n') + '\n');
+}
+
+function mockFetch(responses: Record<string, MockResponse>): typeof fetch {
   return (async (input: string | URL | Request) => {
     const url = typeof input === 'string' ? input : input instanceof URL ? input.toString() : input.url;
     const match = Object.entries(responses).find(([pattern]) => url.includes(pattern));
     if (!match) {
-      return { ok: false, status: 404, text: async () => 'Not found', json: async () => ({}) } as Response;
+      return new Response('Not found', { status: 404 });
     }
     const [, resp] = match;
-    return {
-      ok: resp.status >= 200 && resp.status < 300,
-      status: resp.status,
-      text: async () => JSON.stringify(resp.body),
-      json: async () => resp.body,
-    } as Response;
+    const body = resp.jsonl ? gzipJsonl(resp.jsonl) : JSON.stringify(resp.body);
+    return new Response(body, { status: resp.status });
   }) as typeof fetch;
 }
 
@@ -39,17 +43,17 @@ function makeBulkDataResponse(): { data: BulkDataEntry[] } {
         id: 'bulk-oracle',
         type: 'oracle_cards',
         updated_at: '2026-03-15T10:00:00+00:00',
-        download_uri: 'https://data.scryfall.io/oracle-cards/oracle-cards-20260315.json',
+        jsonl_download_uri: 'https://data.scryfall.io/oracle-cards/oracle-cards-20260315100000.jsonl.gz',
         name: 'Oracle Cards',
-        size: 80000000,
+        compressed_size: 25000000,
       },
       {
         id: 'bulk-rulings',
         type: 'rulings',
         updated_at: '2026-03-15T10:00:00+00:00',
-        download_uri: 'https://data.scryfall.io/rulings/rulings-20260315.json',
+        jsonl_download_uri: 'https://data.scryfall.io/rulings/rulings-20260315100000.jsonl.gz',
         name: 'Rulings',
-        size: 5000000,
+        compressed_size: 5000000,
       },
     ],
   };
@@ -197,7 +201,7 @@ describe('Scryfall Pipeline', () => {
       const entries = makeBulkDataResponse().data;
       const oracle = findBulkEntry(entries, 'oracle_cards');
       expect(oracle).toBeDefined();
-      expect(oracle!.download_uri).toContain('oracle-cards');
+      expect(oracle!.jsonl_download_uri).toContain('oracle-cards');
     });
 
     it('returns undefined for missing type', () => {
@@ -207,18 +211,29 @@ describe('Scryfall Pipeline', () => {
   });
 
   describe('downloadBulkFile', () => {
-    it('downloads and parses JSON', async () => {
+    it('downloads and parses gzipped JSON Lines', async () => {
       const testData = [{ id: '1' }, { id: '2' }];
       const fetchFn = mockFetch({
-        'oracle-cards': { status: 200, body: testData },
+        'oracle-cards': { status: 200, jsonl: testData },
       });
 
-      const result = await downloadBulkFile<typeof testData>(
-        'https://data.scryfall.io/oracle-cards/test.json',
+      const result = await downloadBulkFile<{ id: string }>(
+        'https://data.scryfall.io/oracle-cards/test.jsonl.gz',
         'test',
         fetchFn,
       );
       expect(result).toEqual(testData);
+    });
+
+    it('skips blank lines', async () => {
+      const fetchFn = (async () => new Response(gzipSync('{"id":"1"}\n\n{"id":"2"}\r\n\n'))) as typeof fetch;
+
+      const result = await downloadBulkFile<{ id: string }>(
+        'https://data.scryfall.io/oracle-cards/test.jsonl.gz',
+        'test',
+        fetchFn,
+      );
+      expect(result).toEqual([{ id: '1' }, { id: '2' }]);
     });
 
     it('throws on download failure', async () => {
@@ -227,7 +242,7 @@ describe('Scryfall Pipeline', () => {
       });
 
       await expect(
-        downloadBulkFile('https://data.scryfall.io/oracle-cards/test.json', 'test', fetchFn),
+        downloadBulkFile('https://data.scryfall.io/oracle-cards/test.jsonl.gz', 'test', fetchFn),
       ).rejects.toThrow('503');
     });
   });
@@ -335,8 +350,8 @@ describe('Scryfall Pipeline', () => {
 
       const fetchFn = mockFetch({
         'bulk-data': { status: 200, body: makeBulkDataResponse() },
-        'oracle-cards': { status: 200, body: cards },
-        'rulings': { status: 200, body: rulings },
+        'oracle-cards': { status: 200, jsonl: cards },
+        'rulings': { status: 200, jsonl: rulings },
       });
 
       const result = await runScryfallPipeline(db, null, fetchFn);
@@ -367,8 +382,8 @@ describe('Scryfall Pipeline', () => {
       const cards = [makeSingleFaceCard()];
       const fetchFn = mockFetch({
         'bulk-data': { status: 200, body: makeBulkDataResponse() },
-        'oracle-cards': { status: 200, body: cards },
-        'rulings': { status: 200, body: [] },
+        'oracle-cards': { status: 200, jsonl: cards },
+        'rulings': { status: 200, jsonl: [] },
       });
 
       const result = await runScryfallPipeline(
@@ -381,7 +396,7 @@ describe('Scryfall Pipeline', () => {
 
     it('throws when oracle_cards entry is missing from metadata', async () => {
       const fetchFn = mockFetch({
-        'bulk-data': { status: 200, body: { data: [{ type: 'other', updated_at: '', download_uri: '', id: '', name: '', size: 0 }] } },
+        'bulk-data': { status: 200, body: { data: [{ type: 'other', updated_at: '', jsonl_download_uri: '', id: '', name: '', compressed_size: 0 }] } },
       });
 
       await expect(runScryfallPipeline(db, null, fetchFn)).rejects.toThrow('oracle_cards');
@@ -403,8 +418,8 @@ describe('Scryfall Pipeline', () => {
 
       const fetchFn = mockFetch({
         'bulk-data': { status: 200, body: makeBulkDataResponse() },
-        'oracle-cards': { status: 200, body: [newCard] },
-        'rulings': { status: 200, body: [] },
+        'oracle-cards': { status: 200, jsonl: [newCard] },
+        'rulings': { status: 200, jsonl: [] },
       });
 
       await runScryfallPipeline(db, null, fetchFn);

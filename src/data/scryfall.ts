@@ -5,6 +5,10 @@
  * Card data © Wizards of the Coast. Used under Fan Content Policy.
  */
 import type Database from 'better-sqlite3';
+import { createInterface } from 'node:readline';
+import { Readable } from 'node:stream';
+import type { ReadableStream as WebReadableStream } from 'node:stream/web';
+import { createGunzip } from 'node:zlib';
 
 // --- Types ---
 
@@ -13,9 +17,10 @@ export interface BulkDataEntry {
   id: string;
   type: string;
   updated_at: string;
-  download_uri: string;
+  /** Gzipped JSON Lines file: one object per line. */
+  jsonl_download_uri: string;
   name: string;
-  size: number;
+  compressed_size: number;
 }
 
 /** Scryfall card object (subset of fields we care about). */
@@ -94,26 +99,32 @@ export function findBulkEntry(entries: BulkDataEntry[], type: string): BulkDataE
 }
 
 /**
- * Download a bulk JSON file from Scryfall. Returns the parsed JSON.
- * For the oracle_cards file (~80-160MB), this loads the full JSON into memory.
- * A streaming approach would be better for very large files, but Node's native
- * fetch already streams the body — JSON.parse is the bottleneck.
+ * Download a bulk file from Scryfall and return its objects. Bulk files are gzipped
+ * JSON Lines (served as application/gzip, so fetch does not decompress them); the
+ * body is decompressed and parsed as it streams, one line at a time.
  */
 export async function downloadBulkFile<T>(
   url: string,
   label: string,
   fetchFn: typeof fetch = fetch,
-): Promise<T> {
+): Promise<T[]> {
   console.error(`[scryfall] Downloading ${label}...`);
   const resp = await fetchFn(url, {
     headers: { 'User-Agent': 'mtg-oracle/0.1.0', 'Accept': 'application/json' },
   });
-  if (!resp.ok) {
+  if (!resp.ok || !resp.body) {
     throw new Error(`Failed to download ${label}: ${resp.status}`);
   }
-  const text = await resp.text();
-  console.error(`[scryfall] Parsing ${label} (${(text.length / 1024 / 1024).toFixed(1)} MB)...`);
-  return JSON.parse(text) as T;
+  const lines = createInterface({
+    input: Readable.fromWeb(resp.body as WebReadableStream).pipe(createGunzip()),
+    crlfDelay: Infinity,
+  });
+  const items: T[] = [];
+  for await (const line of lines) {
+    if (line.trim()) items.push(JSON.parse(line) as T);
+  }
+  console.error(`[scryfall] Parsed ${items.length} ${label} objects`);
+  return items;
 }
 
 // --- Ingestion ---
@@ -307,16 +318,16 @@ export async function runScryfallPipeline(
   db.exec('DELETE FROM cards');
 
   // 4. Download and ingest oracle cards
-  const cards = await downloadBulkFile<ScryfallCard[]>(
-    oracleEntry.download_uri, 'oracle_cards', fetchFn,
+  const cards = await downloadBulkFile<ScryfallCard>(
+    oracleEntry.jsonl_download_uri, 'oracle_cards', fetchFn,
   );
   ingestCards(db, cards);
 
   // 5. Download and ingest rulings
   const rulingsEntry = findBulkEntry(entries, 'rulings');
   if (rulingsEntry) {
-    const rulings = await downloadBulkFile<ScryfallRuling[]>(
-      rulingsEntry.download_uri, 'rulings', fetchFn,
+    const rulings = await downloadBulkFile<ScryfallRuling>(
+      rulingsEntry.jsonl_download_uri, 'rulings', fetchFn,
     );
     ingestRulings(db, rulings);
   } else {

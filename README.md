@@ -78,6 +78,17 @@ MCP is served at `POST /mcp`, and `GET /healthz` returns `{"status":"ok","versio
 
 The HTTP server has no authentication of its own. To expose it beyond your machine, put it behind a reverse proxy that adds TLS and whatever access control you need.
 
+### Docker
+
+The image runs as the unprivileged `node` user, keeps its data in `/data`, and listens on `0.0.0.0:3000` in HTTP mode. Mount a volume on `/data` so the card database survives restarts:
+
+```bash
+docker build -t mtg-oracle .
+docker run -d -p 3000:3000 -v mtg-oracle-data:/data -e MTG_ORACLE_TRANSPORT=http mtg-oracle
+```
+
+Without `MTG_ORACLE_TRANSPORT=http`, the container speaks stdio (`docker run -i --rm mtg-oracle`).
+
 ## Data
 
 On first run, mtg-oracle downloads card data from Scryfall and rules data from Academy Ruins. Data is stored in `~/.mtg-oracle/` and updated automatically on subsequent runs, and every 24 hours while the server keeps running. Each check downloads only what has changed. No card data is bundled in the npm package.

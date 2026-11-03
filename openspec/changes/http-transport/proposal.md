@@ -8,7 +8,8 @@ mtg-oracle only speaks stdio, so it works only with clients that launch it as a 
 - **Streamable HTTP transport** (`src/http.ts`), opt-in with `--http` or `MTG_ORACLE_TRANSPORT=http`. MCP at `POST /mcp`, stateless (no sessions; one server and transport per request, JSON responses), `GET /healthz` for health checks. `GET`/`DELETE /mcp` return 405, as there are no sessions or server-initiated streams.
 - **Configuration** (`src/config.ts`): `MTG_ORACLE_HOST` (default `127.0.0.1`) and `MTG_ORACLE_PORT` (default `3000`). Invalid values stop the server at startup.
 - **Long-running servers**: `MTG_ORACLE_DATA_DIR` overrides `~/.mtg-oracle` (e.g. for a container volume). The data pipeline re-runs every `MTG_ORACLE_REFRESH_HOURS` (default 24, 0 disables), skipping a tick if the previous run is still going; it already downloads only what changed. `/healthz` reports each source's last update, so monitoring can alert on stale data.
-- stdio stays the default, so existing installs are unchanged.
+- **Docker image** runs as the unprivileged `node` user with `MTG_ORACLE_DATA_DIR=/data` (a volume) and exposes port 3000; HTTP mode binds to `0.0.0.0` inside the container. Dev dependencies are pruned from the runtime image.
+- stdio stays the default, so existing installs are unchanged, and so does the image's entrypoint.
 
 ## Capabilities
 

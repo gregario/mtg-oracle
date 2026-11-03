@@ -60,9 +60,55 @@ Or if installed globally:
 claude mcp add mtg-oracle -- npx -y mtg-oracle
 ```
 
+## Remote (HTTP) Server
+
+By default mtg-oracle speaks stdio, for clients that launch it as a local process. To serve remote clients instead, such as a claude.ai custom connector, start it with the streamable HTTP transport:
+
+```bash
+npx mtg-oracle --http
+```
+
+MCP is served at `POST /mcp`, and `GET /healthz` returns `{"status":"ok","version":"...","lastUpdate":{...}}` for health checks. The server is stateless: there are no sessions, so it can sit behind any reverse proxy.
+
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `MTG_ORACLE_TRANSPORT` | `stdio` | `stdio` or `http`. `--http` is a shortcut for `http`. |
+| `MTG_ORACLE_HOST` | `127.0.0.1` | Address to listen on. Use `0.0.0.0` to accept connections from other hosts or containers. |
+| `MTG_ORACLE_PORT` | `3000` | Port to listen on. |
+
+The HTTP server has no authentication of its own. To expose it beyond your machine, put it behind a reverse proxy that adds TLS and whatever access control you need.
+
+### Connecting a client
+
+Point the client at the server's `/mcp` URL. For Claude Code:
+
+```bash
+claude mcp add --transport http mtg-oracle http://localhost:3000/mcp
+```
+
+For a claude.ai custom connector (also used by the Claude mobile apps), add the server's public HTTPS URL ending in `/mcp`, such as `https://mtg.example.com/mcp`. claude.ai connects from the internet, so the server must be reachable through your reverse proxy.
+
+### Docker
+
+The image runs as the unprivileged `node` user, keeps its data in `/data`, and listens on `0.0.0.0:3000` in HTTP mode. Mount a volume on `/data` so the card database survives restarts:
+
+```bash
+docker build -t mtg-oracle .
+docker run -d -p 3000:3000 -v mtg-oracle-data:/data -e MTG_ORACLE_TRANSPORT=http mtg-oracle
+```
+
+Without `MTG_ORACLE_TRANSPORT=http`, the container speaks stdio (`docker run -i --rm mtg-oracle`).
+
 ## Data
 
-On first run, mtg-oracle downloads card data from Scryfall and rules data from Academy Ruins. Data is stored in `~/.mtg-oracle/` and updated automatically on subsequent runs. No card data is bundled in the npm package.
+On first run, mtg-oracle downloads card data from Scryfall and rules data from Academy Ruins. Data is stored in `~/.mtg-oracle/` and updated automatically on subsequent runs, and every 24 hours while the server keeps running. Each check downloads only what has changed. No card data is bundled in the npm package.
+
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `MTG_ORACLE_DATA_DIR` | `~/.mtg-oracle` | Where the SQLite database and update timestamps are stored. |
+| `MTG_ORACLE_REFRESH_HOURS` | `24` | Hours between update checks while running. `0` checks only at startup. |
+
+With the HTTP transport, `GET /healthz` also reports when each source was last updated, so monitoring can alert on stale data.
 
 ## Tools
 

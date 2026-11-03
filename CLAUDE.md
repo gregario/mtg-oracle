@@ -11,9 +11,10 @@ Read both stack profiles before writing any code.
 
 ## Architecture
 
-- **Runtime data**: Downloads Scryfall bulk data on first run, stores in `~/.mtg-oracle/`
+- **Runtime data**: Downloads Scryfall bulk data on first run, stores in `~/.mtg-oracle/` (or `MTG_ORACLE_DATA_DIR`)
 - **Does NOT bundle card data** in the npm package — data is fetched at runtime
-- **Updates**: Checks Scryfall `bulk-data` metadata endpoint, downloads only if newer
+- **Updates**: Checks Scryfall `bulk-data` metadata endpoint, downloads only if newer; at startup and every `MTG_ORACLE_REFRESH_HOURS` (default 24) while running
+- **Transports**: stdio (default) or stateless streamable HTTP (`--http`); tools are registered in `src/mcp.ts`, independent of transport
 - **Storage**: SQLite via `better-sqlite3` for fast indexed queries
 
 ## Data Source Compliance

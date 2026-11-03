@@ -78,6 +78,16 @@ MCP is served at `POST /mcp`, and `GET /healthz` returns `{"status":"ok","versio
 
 The HTTP server has no authentication of its own. To expose it beyond your machine, put it behind a reverse proxy that adds TLS and whatever access control you need.
 
+### Connecting a client
+
+Point the client at the server's `/mcp` URL. For Claude Code:
+
+```bash
+claude mcp add --transport http mtg-oracle http://localhost:3000/mcp
+```
+
+For a claude.ai custom connector (also used by the Claude mobile apps), add the server's public HTTPS URL ending in `/mcp`, such as `https://mtg.example.com/mcp`. claude.ai connects from the internet, so the server must be reachable through your reverse proxy.
+
 ### Docker
 
 The image runs as the unprivileged `node` user, keeps its data in `/data`, and listens on `0.0.0.0:3000` in HTTP mode. Mount a volume on `/data` so the card database survives restarts:
